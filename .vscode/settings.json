@@ -14,5 +14,19 @@
         "editor.codeActionsOnSave": {
             "source.organizeImports": "explicit"
         }
-    }
+    },
+    "cSpell.words": [
+        "COVARIATES",
+        "ddof",
+        "errstate",
+        "FRONTDOOR",
+        "gelsy",
+        "lapack",
+        "linalg",
+        "lstsq",
+        "mcse",
+        "nextafter",
+        "pafi",
+        "vech"
+    ]
 }
