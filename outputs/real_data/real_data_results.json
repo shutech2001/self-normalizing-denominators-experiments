@@ -1,0 +1,103 @@
+{
+  "config": {
+    "seed": 42,
+    "bootstrap_replications": 2000,
+    "workers": 8
+  },
+  "data": {
+    "url": "https://hbiostat.org/data/repo/rhc.csv",
+    "path": "/Users/shu/Desktop/self-normalizing-denominators-experiments/outputs/real_data/rhc.csv",
+    "sha256": "9ef4ab578be4b40ad5d97d3a7e08ffdc1f9f76aeeefee51b4996e4221556f8e8",
+    "rows": 5735,
+    "design_rank": 19,
+    "residual_df": 5716,
+    "design_columns": [
+      "intercept",
+      "age",
+      "surv2md1",
+      "aps1",
+      "sex_Male",
+      "cat1_CHF",
+      "cat1_COPD",
+      "cat1_Cirrhosis",
+      "cat1_Colon Cancer",
+      "cat1_Coma",
+      "cat1_Lung Cancer",
+      "cat1_MOSF w/Malignancy",
+      "cat1_MOSF w/Sepsis",
+      "cat2_Colon Cancer",
+      "cat2_Coma",
+      "cat2_Lung Cancer",
+      "cat2_MOSF w/Malignancy",
+      "cat2_MOSF w/Sepsis",
+      "dnr1_Yes"
+    ]
+  },
+  "diagnostic_convention": "The manuscript-specific strength diagnostics use residual_df times rho_squared/(1-rho_squared); they are not regression-package finite-sample F tests.",
+  "diagnostics": [
+    {
+      "n": 5735,
+      "residual_df": 5716,
+      "treatment_proxy": "pafi1",
+      "outcome_proxy": "ph1",
+      "naive_F_A_on_Z": 173.4299980195,
+      "partial_F_Z_to_W_given_A": 3.1856973101,
+      "gaussian_F_D": 3.1786111708,
+      "sandwich_F_D": 2.3055191976,
+      "proximal_estimate": -1.2452695871,
+      "partial_correlation": 0.0236012582,
+      "sandwich_F_D_q025": 0.0111071202,
+      "sandwich_F_D_q975": 12.7327264331,
+      "estimate_q025": -2.2486376539,
+      "estimate_q975": 0.139068869
+    },
+    {
+      "n": 5735,
+      "residual_df": 5716,
+      "treatment_proxy": "pafi1",
+      "outcome_proxy": "hema1",
+      "naive_F_A_on_Z": 173.4299980195,
+      "partial_F_Z_to_W_given_A": 32.3055807381,
+      "gaussian_F_D": 31.5913902494,
+      "sandwich_F_D": 25.7097329039,
+      "proximal_estimate": -1.4118978012,
+      "partial_correlation": -0.0749667792,
+      "sandwich_F_D_q025": 9.1659281177,
+      "sandwich_F_D_q975": 51.3015072594,
+      "estimate_q025": -2.0357564517,
+      "estimate_q975": -0.8059069487
+    },
+    {
+      "n": 5735,
+      "residual_df": 5716,
+      "treatment_proxy": "paco21",
+      "outcome_proxy": "ph1",
+      "naive_F_A_on_Z": 16.3947752123,
+      "partial_F_Z_to_W_given_A": 1980.0241248447,
+      "gaussian_F_D": 829.9895720251,
+      "sandwich_F_D": 315.1895164437,
+      "proximal_estimate": -1.3278350992,
+      "partial_correlation": -0.5072266116,
+      "sandwich_F_D_q025": 218.2418354759,
+      "sandwich_F_D_q975": 461.9344423638,
+      "estimate_q025": -1.83946062,
+      "estimate_q975": -0.810632594
+    },
+    {
+      "n": 5735,
+      "residual_df": 5716,
+      "treatment_proxy": "paco21",
+      "outcome_proxy": "hema1",
+      "naive_F_A_on_Z": 16.3947752123,
+      "partial_F_Z_to_W_given_A": 69.3400567981,
+      "gaussian_F_D": 66.1311434042,
+      "sandwich_F_D": 51.3374696598,
+      "proximal_estimate": -1.1358113835,
+      "partial_correlation": 0.1094782006,
+      "sandwich_F_D_q025": 30.3170739808,
+      "sandwich_F_D_q975": 78.3530596116,
+      "estimate_q025": -1.6886952301,
+      "estimate_q975": -0.5632961144
+    }
+  ]
+}
