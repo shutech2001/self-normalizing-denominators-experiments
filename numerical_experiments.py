@@ -30,14 +30,28 @@ class SimulationConfig:
 
 
 def frontdoor_covariance(v_m: float) -> NDArray[np.float64]:
-    """Covariance of (X, M, Y) in the manuscript's front-door design."""
+    """Covariance of (X, M, Y) in the paper's front-door design.
+
+    Args:
+        v_m (float): The variance of the mediator M.
+
+    Returns:
+        NDArray[np.float64]: The covariance matrix of (X, M, Y).
+    """
     loading = np.array([[1.0, 0.0, 0.0], [0.8, 1.0, 0.0], [0.8, 1.0, 1.0]])
     shock_covariance = np.array([[1.0, 0.0, 0.5], [0.0, v_m, 0.0], [0.5, 0.0, 1.0]])
     return loading @ shock_covariance @ loading.T
 
 
 def proximal_covariance(v_a: float) -> NDArray[np.float64]:
-    """Covariance of (Z, A, W, Y) in the manuscript's proximal design."""
+    """Covariance of (Z, A, W, Y) in the paper's proximal design.
+
+    Args:
+        v_a (float): The variance of the treatment A.
+
+    Returns:
+        NDArray[np.float64]: The covariance matrix of (Z, A, W, Y).
+    """
     loading = np.array(
         [
             [0.8, 1.0, 0.0, 0.0, 0.0],
@@ -51,6 +65,15 @@ def proximal_covariance(v_a: float) -> NDArray[np.float64]:
 
 
 def _vech_indices(dimension: int) -> tuple[NDArray[np.int32], NDArray[np.int32]]:
+    """Indices of the upper triangular part of a symmetric matrix.
+
+    Args:
+        dimension (int): The dimension of the symmetric matrix.
+
+    Returns:
+        tuple[NDArray[np.int32], NDArray[np.int32]]:
+        The indices of the upper triangular part of the symmetric matrix.
+    """
     pairs = [(i, j) for i in range(dimension) for j in range(i, dimension)]
     return (
         np.asarray([i for i, _ in pairs], dtype=np.int32),
@@ -59,7 +82,14 @@ def _vech_indices(dimension: int) -> tuple[NDArray[np.int32], NDArray[np.int32]]
 
 
 def _gaussian_gamma(covariances: NDArray[np.float64]) -> NDArray[np.float64]:
-    """Covariance of sqrt(n) vech(S_hat - Sigma), evaluated by row."""
+    """Covariance of sqrt(n) vech(S_hat - Sigma), evaluated by row.
+
+    Args:
+        covariances (NDArray[np.float64]): The sample covariance matrix.
+
+    Returns:
+        NDArray[np.float64]: The covariance of sqrt(n) vech(S_hat - Sigma), evaluated by row.
+    """
     first, second = _vech_indices(covariances.shape[1])
     return (
         covariances[:, first[:, None], first[None, :]]
@@ -72,6 +102,15 @@ def _gaussian_gamma(covariances: NDArray[np.float64]) -> NDArray[np.float64]:
 def _frontdoor_polynomials(
     covariance: NDArray[np.float64],
 ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
+    """Polynomials for the front-door design.
+
+    Args:
+        covariance (NDArray[np.float64]): The covariance matrix.
+
+    Returns:
+        tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
+        The polynomials.
+    """
     x, xm, xy = covariance[:, 0, 0], covariance[:, 0, 1], covariance[:, 0, 2]
     mm, my = covariance[:, 1, 1], covariance[:, 1, 2]
     numerator = xm * (x * my - xm * xy)
@@ -88,6 +127,15 @@ def _frontdoor_polynomials(
 def _proximal_polynomials(
     covariance: NDArray[np.float64],
 ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
+    """Polynomials for the proximal design.
+
+    Args:
+        covariance (NDArray[np.float64]): The covariance matrix.
+
+    Returns:
+        tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
+        The polynomials.
+    """
     za = covariance[:, 0, 1]
     zw = covariance[:, 0, 2]
     zy = covariance[:, 0, 3]
@@ -105,12 +153,31 @@ def _proximal_polynomials(
 def _quadratic_form(
     vectors: NDArray[np.float64], matrices: NDArray[np.float64]
 ) -> NDArray[np.float64]:
+    """Quadratic form of a vector and a matrix.
+
+    Args:
+        vectors (NDArray[np.float64]): The vector.
+        matrices (NDArray[np.float64]): The matrix.
+
+    Returns:
+        NDArray[np.float64]: The quadratic form of the vector and the matrix.
+    """
     return np.einsum("bi,bij,bj->b", vectors, matrices, vectors, optimize=True)
 
 
 def _ratio_metrics(
     covariances: NDArray[np.float64], family: str, sample_size: int
 ) -> dict[str, NDArray[np.float64]]:
+    """Metrics for the front-door and proximal designs.
+
+    Args:
+        covariances (NDArray[np.float64]): The covariance matrix.
+        family (str): The family of the design.
+        sample_size (int): The sample size.
+
+    Returns:
+        dict[str, NDArray[np.float64]]: The metrics.
+    """
     if family == "frontdoor":
         numerator, denominator, gradient_n, gradient_d = _frontdoor_polynomials(covariances)
         truth = 0.8
@@ -168,6 +235,16 @@ def _ratio_metrics(
 
 
 def _population_f(covariance: NDArray[np.float64], family: str, sample_size: int) -> float:
+    """Population F_D for the front-door and proximal designs.
+
+    Args:
+        covariance (NDArray[np.float64]): The covariance matrix.
+        family (str): The family of the design.
+        sample_size (int): The sample size.
+
+    Returns:
+        float: The population F_D.
+    """
     metrics = _ratio_metrics(covariance[None, :, :], family, sample_size)
     return float(metrics["F_D"][0])
 
@@ -175,6 +252,16 @@ def _population_f(covariance: NDArray[np.float64], family: str, sample_size: int
 def _summarize_cell(
     family: str, parameter: float, config: SimulationConfig
 ) -> dict[str, float | int | str]:
+    """Summarize a cell of the front-door and proximal designs.
+
+    Args:
+        family (str): The family of the design.
+        parameter (float): The parameter value.
+        config (SimulationConfig): The configuration.
+
+    Returns:
+        dict[str, float | int | str]: The summary.
+    """
     covariance = (
         frontdoor_covariance(parameter) if family == "frontdoor" else proximal_covariance(parameter)
     )
@@ -235,6 +322,15 @@ def _summarize_cell(
 
 
 def _resolve_jobs(requested: int, task_count: int) -> int:
+    """Resolve the number of jobs to run.
+
+    Args:
+        requested (int): The requested number of jobs.
+        task_count (int): The number of tasks.
+
+    Returns:
+        int: The number of jobs to run.
+    """
     if requested < -1:
         raise ValueError("jobs must be -1, 0, or a positive integer")
     if requested > 0:
@@ -244,6 +340,15 @@ def _resolve_jobs(requested: int, task_count: int) -> int:
 
 
 def run_experiments(config: SimulationConfig, jobs: int = 0) -> pd.DataFrame:
+    """Run the experiments.
+
+    Args:
+        config (SimulationConfig): The configuration.
+        jobs (int): The number of jobs to run.
+
+    Returns:
+        pd.DataFrame: The results.
+    """
     cells = [
         *(("frontdoor", value) for value in FRONTDOOR_GRID),
         *(("proximal", value) for value in PROXIMAL_GRID),
@@ -268,10 +373,26 @@ def run_experiments(config: SimulationConfig, jobs: int = 0) -> pd.DataFrame:
 
 
 def _json_records(frame: pd.DataFrame) -> list[dict[str, object]]:
+    """Convert a pandas DataFrame to a list of JSON records.
+
+    Args:
+        frame (pd.DataFrame): The DataFrame to convert.
+
+    Returns:
+        list[dict[str, object]]: The JSON records.
+    """
     return json.loads(frame.to_json(orient="records"))
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    """Parse the command line arguments.
+
+    Args:
+        argv (Sequence[str] | None): The command line arguments.
+
+    Returns:
+        argparse.Namespace: The parsed arguments.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=Path("outputs/numerical"))
     parser.add_argument("--n", type=int, default=1_000)
@@ -288,6 +409,14 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    """Main function.
+
+    Args:
+        argv (Sequence[str] | None): The command line arguments.
+
+    Returns:
+        int: The exit code.
+    """
     args = parse_args(argv)
     if args.n <= 4 or args.replications <= 0 or args.batch_size <= 0:
         raise ValueError("n, replications, and batch-size must be positive (n > 4)")

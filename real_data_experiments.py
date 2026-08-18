@@ -44,6 +44,14 @@ class PreparedData:
 
 
 def _sha256(path: Path) -> str:
+    """Compute the SHA-256 hash of a file.
+
+    Args:
+        path (Path): The path to the file.
+
+    Returns:
+        str: The SHA-256 hash of the file.
+    """
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
@@ -52,7 +60,18 @@ def _sha256(path: Path) -> str:
 
 
 def download_rhc(path: Path) -> Path:
-    """Download the versioned public CSV atomically when it is absent."""
+    """Download the versioned public CSV atomically when it is absent.
+
+    Args:
+        path (Path): The path to the file.
+
+    Raises:
+        RuntimeError: If the downloaded file has an unexpected SHA-256.
+        RuntimeError: If the file cannot be obtained.
+
+    Returns:
+        Path: The path to the downloaded file.
+    """
     if path.exists():
         return path
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -76,6 +95,14 @@ def download_rhc(path: Path) -> Path:
 
 
 def _validate_columns(data: pd.DataFrame) -> None:
+    """Validate the columns of the data.
+
+    Args:
+        data (pd.DataFrame): The data to validate.
+
+    Raises:
+        ValueError: If the data is missing required columns.
+    """
     required = {
         "swang1",
         "t3d30",
@@ -92,6 +119,18 @@ def _validate_columns(data: pd.DataFrame) -> None:
 
 
 def _encode_treatment(values: pd.Series) -> NDArray[np.float64]:
+    """Encode the treatment values.
+
+    Args:
+        values (pd.Series): The treatment values.
+
+    Raises:
+        ValueError: If the treatment values are missing.
+        ValueError: If the treatment values are not exactly "RHC" or "No RHC".
+
+    Returns:
+        NDArray[np.float64]: The encoded treatment values.
+    """
     normalized = values.astype("string").str.strip().str.casefold()
     if normalized.isna().any():
         raise ValueError("swang1 contains missing treatment values")
@@ -107,6 +146,19 @@ def _encode_treatment(values: pd.Series) -> NDArray[np.float64]:
 
 
 def _numeric_without_missing(data: pd.DataFrame, name: str) -> NDArray[np.float64]:
+    """Convert a column to a numeric array without missing values.
+
+    Args:
+        data (pd.DataFrame): The data.
+        name (str): The name of the column.
+
+    Raises:
+        ValueError: If the column contains missing or non-numeric values.
+        ValueError: If the column contains infinite values.
+
+    Returns:
+        NDArray[np.float64]: The numeric array.
+    """
     values = pd.to_numeric(data[name], errors="coerce")
     if values.isna().any():
         raise ValueError(f"{name} contains missing or non-numeric analysis values")
@@ -117,7 +169,21 @@ def _numeric_without_missing(data: pd.DataFrame, name: str) -> NDArray[np.float6
 
 
 def prepare_support_data(data: pd.DataFrame) -> PreparedData:
-    """Fit the stated preprocessing and jointly residualize all six variables."""
+    """Fit the stated preprocessing and jointly residualize all six variables.
+
+    Args:
+        data (pd.DataFrame): The data to prepare.
+
+    Raises:
+        ValueError: If the data is missing required columns.
+        ValueError: If the data contains missing or non-numeric values.
+        ValueError: If the data contains infinite values.
+        ValueError: If the preprocessed adjustment design contains non-finite values.
+        ValueError: If the adjustment design leaves no positive residual degrees of freedom.
+
+    Returns:
+        PreparedData: The prepared data.
+    """
     _validate_columns(data)
     covariates = data[[*CONTINUOUS_COVARIATES, *CATEGORICAL_COVARIATES]].copy()
     for name in CONTINUOUS_COVARIATES:
@@ -169,12 +235,31 @@ def prepare_support_data(data: pd.DataFrame) -> PreparedData:
 
 
 def _moment(left: np.ndarray, right: np.ndarray) -> float:
+    """Compute the moment of two arrays.
+
+    Args:
+        left (np.ndarray): The left array.
+        right (np.ndarray): The right array.
+
+    Returns:
+        float: The moment of the two arrays.
+    """
     return float(left @ right / len(left))
 
 
 def pair_metrics(
     prepared: PreparedData, treatment_proxy: str, outcome_proxy: str
 ) -> dict[str, float | int | str]:
+    """Compute the metrics for a pair of treatment and outcome proxies.
+
+    Args:
+        prepared (PreparedData): The prepared data.
+        treatment_proxy (str): The treatment proxy.
+        outcome_proxy (str): The outcome proxy.
+
+    Returns:
+        dict[str, float | int | str]: The metrics.
+    """
     residuals = prepared.residuals
     a, y = residuals["A"], residuals["Y"]
     z, w = residuals[treatment_proxy], residuals[outcome_proxy]
@@ -228,6 +313,14 @@ def pair_metrics(
 
 
 def _point_diagnostics(prepared: PreparedData) -> pd.DataFrame:
+    """Compute the point diagnostics for the prepared data.
+
+    Args:
+        prepared (PreparedData): The prepared data.
+
+    Returns:
+        pd.DataFrame: The point diagnostics.
+    """
     return pd.DataFrame(
         [
             pair_metrics(prepared, treatment_proxy, outcome_proxy)
@@ -239,6 +332,16 @@ def _point_diagnostics(prepared: PreparedData) -> pd.DataFrame:
 def _bootstrap_chunk(
     data: pd.DataFrame, replications: list[int], seed: int
 ) -> list[dict[str, float | int | str]]:
+    """Bootstrap the point diagnostics.
+
+    Args:
+        data (pd.DataFrame): The data to bootstrap.
+        replications (list[int]): The replications to bootstrap.
+        seed (int): The seed for the random number generator.
+
+    Returns:
+        list[dict[str, float | int | str]]: The bootstrap results.
+    """
     records: list[dict[str, float | int | str]] = []
     n = len(data)
     for replication in replications:
@@ -261,6 +364,15 @@ def _bootstrap_chunk(
 
 
 def _resolve_jobs(requested: int, task_count: int) -> int:
+    """Resolve the number of jobs to run.
+
+    Args:
+        requested (int): The requested number of jobs.
+        task_count (int): The number of tasks.
+
+    Returns:
+        int: The number of jobs to run.
+    """
     if requested < -1:
         raise ValueError("jobs must be -1, 0, or a positive integer")
     if task_count <= 0:
@@ -274,6 +386,17 @@ def _resolve_jobs(requested: int, task_count: int) -> int:
 def run_bootstrap(
     data: pd.DataFrame, replications: int, seed: int = DEFAULT_SEED, jobs: int = 0
 ) -> pd.DataFrame:
+    """Run the bootstrap.
+
+    Args:
+        data (pd.DataFrame): The data to bootstrap.
+        replications (int): The number of replications.
+        seed (int): The seed for the random number generator.
+        jobs (int): The number of jobs to run.
+
+    Returns:
+        pd.DataFrame: The bootstrap results.
+    """
     columns = [
         "replication",
         "treatment_proxy",
@@ -316,6 +439,15 @@ def run_bootstrap(
 
 
 def _add_bootstrap_intervals(diagnostics: pd.DataFrame, bootstrap: pd.DataFrame) -> pd.DataFrame:
+    """Add bootstrap intervals to the diagnostics.
+
+    Args:
+        diagnostics (pd.DataFrame): The diagnostics.
+        bootstrap (pd.DataFrame): The bootstrap results.
+
+    Returns:
+        pd.DataFrame: The diagnostics with bootstrap intervals.
+    """
     if bootstrap.empty:
         return diagnostics
     intervals = (
@@ -332,10 +464,26 @@ def _add_bootstrap_intervals(diagnostics: pd.DataFrame, bootstrap: pd.DataFrame)
 
 
 def _json_records(frame: pd.DataFrame) -> list[dict[str, object]]:
+    """Convert a pandas DataFrame to a list of JSON records.
+
+    Args:
+        frame (pd.DataFrame): The DataFrame to convert.
+
+    Returns:
+        list[dict[str, object]]: The JSON records.
+    """
     return json.loads(frame.to_json(orient="records"))
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    """Parse the command line arguments.
+
+    Args:
+        argv (Sequence[str] | None): The command line arguments.
+
+    Returns:
+        argparse.Namespace: The parsed arguments.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=Path("outputs/real_data"))
     parser.add_argument("--rhc", type=Path, default=None, help="Local rhc.csv path")
@@ -351,6 +499,14 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    """Main function.
+
+    Args:
+        argv (Sequence[str] | None): The command line arguments.
+
+    Returns:
+        int: The exit code.
+    """
     args = parse_args(argv)
     if args.bootstrap < 0:
         raise ValueError("bootstrap must be nonnegative")
