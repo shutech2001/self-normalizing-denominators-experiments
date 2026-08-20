@@ -1,10 +1,9 @@
-# Self-normalizing denominators: experiments
+# Experiments for "Self-normalizing denominators in rational causal estimation"
 
-Reproducible code for the **Numerical Experiments** and **Real Data
-Experiments** in *Self-normalizing denominators in rational causal
-estimation*.  The two analyses are independent and use seed 42 by default.
+Reproducible code for the numerical experiments and real data experiments in "**"Self-normalizing denominators in rational causal estimation**".
+The two analyses are independent and use seed 42 by default.
 
-## What is This Repository?
+## Reproducing the Experiments
 
 ### Requirements and Setup
 ```bash
