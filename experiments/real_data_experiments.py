@@ -1,3 +1,5 @@
+"""Run the SUPPORT/RHC real-data experiment from the manuscript."""
+
 from __future__ import annotations
 
 import argparse

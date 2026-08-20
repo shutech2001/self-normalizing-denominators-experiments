@@ -1,3 +1,5 @@
+"""Run the Gaussian numerical experiments from the manuscript."""
+
 from __future__ import annotations
 
 import argparse
