@@ -1,4 +1,32 @@
 {
     "python-envs.defaultEnvManager": "ms-python.python:poetry",
-    "python-envs.defaultPackageManager": "ms-python.python:poetry"
+    "python-envs.defaultPackageManager": "ms-python.python:poetry",
+    "flake8.args": [
+        "--max-line-length=100"
+    ],
+    "black-formatter.args": [
+        "--line-length",
+        "100"
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    },
+    "cSpell.words": [
+        "COVARIATES",
+        "ddof",
+        "errstate",
+        "FRONTDOOR",
+        "gelsy",
+        "lapack",
+        "linalg",
+        "lstsq",
+        "mcse",
+        "nextafter",
+        "pafi",
+        "vech"
+    ]
 }
