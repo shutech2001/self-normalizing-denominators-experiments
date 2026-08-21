@@ -1,6 +1,6 @@
 # Experiments for "Self-normalizing denominators in rational causal estimation"
 
-Reproducible code for the numerical experiments and real data experiments in "**"Self-normalizing denominators in rational causal estimation**".
+Reproducible code for the numerical experiments and real data experiments in "[**Self-normalizing denominators in rational causal estimation**](https://arxiv.org/abs/2608.20223)".
 The two analyses are independent and use seed 42 by default.
 
 ## Reproducing the Experiments
@@ -99,6 +99,16 @@ The full run writes:
 The analysis is a descriptive denominator audit.
 The reported strength diagnostics and bootstrap percentiles do not establish proxy validity or a clinical causal effect.
 As above, use a separate `--output-dir` when results from the existing full run should be retained.
+
+## Citation
+```bibtex
+@article{tamano2026self,
+    author={Tamano, Shu},
+    journal={arXiv preprint arXiv:2608.20223},
+    title={Self-normalizing denominators in rational causal estimation},
+    year={2026},
+}
+```
 
 ## Contact
 If you have any question, please feel free to contact: tamano-shu212@g.ecc.u-tokyo.ac.jp
