@@ -1,0 +1,29 @@
+{
+  "seed": 42,
+  "evaluation_repetitions": 50000,
+  "reference_validation_repetitions": 2000000,
+  "canonical_limit_repetitions": 1000000,
+  "stages": [
+    "block",
+    "mediation",
+    "canonical",
+    "adjusted",
+    "boundary"
+  ],
+  "stage_seconds": {
+    "block": 13.524198055267334,
+    "mediation": 6.786160945892334,
+    "canonical": 4.582274913787842,
+    "adjusted": 11.744070053100586,
+    "boundary": 5.380845069885254
+  },
+  "total_seconds": 42.0247962474823,
+  "python": "3.13.2",
+  "numpy": "2.5.2",
+  "scipy": "1.18.0",
+  "pandas": "3.0.5",
+  "generator": "numpy.random.default_rng; PCG64; SeedSequence([42, stage identifiers])",
+  "common_random_numbers": "Within block r,n across rho; within mediation law,n across v; throughout canonical grid.",
+  "failure_policy": "Undefined methods count as noncoverage; conditional coverage is also stored.",
+  "script_sha256": "7a80a5362b00e59ebc1a97e3e46e4e07e4299b364a2f7a6ac75984694a25f274"
+}

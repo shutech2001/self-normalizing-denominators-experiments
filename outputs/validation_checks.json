@@ -1,0 +1,13 @@
+{
+  "log_chisquare_quantile_max_absolute_error": 1.5740603265257391e-12,
+  "raw_vs_canonical_empirical_se_relative_error": 2.3225865675158275e-13,
+  "raw_vs_canonical_effect_scaled_error": 4.891128604734998e-11,
+  "raw_vs_canonical_log_denominator_error": 2.1010970741031088e-14,
+  "block_congruence_full_logratio_error": 7.993605777301127e-14,
+  "block_congruence_product_logratio_error": 1.304512053934559e-15,
+  "float64_vs_70_digit_logdet_error": 7.460698725481052e-14,
+  "napkin_raw_vs_scaled_relative_error": 4.936273612088371e-12,
+  "seed_reproducible": true,
+  "stream_separation": true,
+  "all_checks_passed": true
+}
